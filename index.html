@@ -11,6 +11,16 @@
 body {
   overflow-x: hidden;
   overflow-y: auto; /* allow vertical scroll */
+  html, body {
+  height: 100%;
+}
+
+/* Fix mobile viewport issue */
+@supports (-webkit-touch-callout: none) {
+  .screen {
+    min-height: -webkit-fill-available;
+  }
+}
 }
 
 .screen {
@@ -92,7 +102,14 @@ img { max-width: 90%; height: auto; margin-bottom: 20px; border-radius: 15px; }
 <div class="screen" id="screen6" style="align-items:flex-start;">
   <h1 class="fancy" style="padding:15px 10px; width:100%; text-align:center;">A Special Message For You 💖</h1>
   <div style="width:100%; display:flex; justify-content:center;">
-    <div id="messageContainer" style="max-width:700px; text-align:left; line-height:1.6; padding:10px;"></div>
+    <div id="messageContainer" style="
+  width: 100%;
+  max-width: 700px;
+  text-align: left;
+  line-height: 1.7;
+  padding: 10px;
+  margin: 0 auto;
+">
   </div>
 </div>
 </div>
