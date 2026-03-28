@@ -8,19 +8,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
-html, body {
-  margin: 0;
+body {
+  overflow-x: hidden;
+  overflow-y: auto; /* allow vertical scroll */
+  html, body {
   height: 100%;
-  overflow: hidden;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #ffb6c1, #ff69b4);
-  color: white;
 }
 
-/* Screens */
+/* Fix mobile viewport issue */
+@supports (-webkit-touch-callout: none) {
+  .screen {
+    min-height: -webkit-fill-available;
+  }
+}
+}
+
 .screen {
   display: none;
-  min-height: 100vh;
+  min-height: 100vh; /* instead of fixed height */
   width: 100%;
   justify-content: center;
   align-items: center;
@@ -32,140 +37,130 @@ html, body {
 
 .active { display: flex; }
 
-/* Heading */
 .fancy {
-  font-family: 'Pacifico', cursive;
   font-size: clamp(1.8rem, 5vw, 2.4rem);
+  font-family: 'Pacifico', cursive;
+  font-size: 2.4rem;
+  text-shadow: 0 0 10px rgba(255,255,255,0.6);
 }
 
-/* Button */
 button {
+  width: 80%;
+  max-width: 250px;
   padding: 12px 25px;
-  border-radius: 30px;
   border: none;
+  border-radius: 30px;
   background: linear-gradient(45deg, #ff1493, #ff69b4);
   color: white;
   font-size: 16px;
-  margin-top: 20px;
   cursor: pointer;
+  margin-top: 20px;
 }
 
-/* Images */
-img {
-  max-width: 90%;
-  border-radius: 15px;
-  margin-bottom: 20px;
-}
+img { max-width: 90%; height: auto; margin-bottom: 20px; border-radius: 15px; }
 
-/* Final message */
-#messageContainer {
-  width: 100%;
-  max-width: 700px;
-  text-align: left;
-  line-height: 1.7;
-  margin: 0 auto;
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+  }
 }
-
-#messageContainer p {
-  margin-bottom: 15px;
-  font-size: clamp(15px, 4vw, 18px);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.5s ease;
-}
-
-.show {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
-}
-
 </style>
 </head>
-
 <body>
 
-<!-- Screen 1 -->
+<!-- Countdown -->
 <div class="screen active" id="screen1">
   <h1 id="countdown" class="fancy">3</h1>
 </div>
 
-<!-- Screen 2 -->
+<!-- Loading -->
 <div class="screen" id="screen2">
-  <img src="image1.png">
+  <img src="image1.png" alt="loading">
   <h1 class="fancy">Loading your birthday surprise...</h1>
 </div>
 
-<!-- Screen 3 -->
+<!-- Tap -->
 <div class="screen" id="screen3">
   <h1 class="fancy">Tap anywhere 💖</h1>
 </div>
 
-<!-- Screen 4 -->
+<!-- Message -->
 <div class="screen" id="screen4">
-  <img src="gif1.gif">
+  <img src="gif1.gif" alt="gif1">
   <h1 class="fancy">Meri Bhaluu turned 17 today 🎉</h1>
   <button onclick="nextScreen(5)">Next ➡️</button>
 </div>
 
-<!-- Screen 5 -->
+<!-- Cake Screen (NO swipe, just show GIF properly) -->
 <div class="screen" id="screen5">
   <h1 class="fancy">A Cake For You 🎂</h1>
-  <img src="gif2.gif">
+  <img src="gif2.gif" alt="cake">
   <button onclick="nextScreen(6)">Yayy 🎉</button>
 </div>
 
-<!-- Screen 6 -->
-<div class="screen" id="screen6" style="align-items:flex-start; overflow-y:auto;">
-  <h1 class="fancy" style="width:100%; text-align:center;">A Special Message 💖</h1>
-  <div id="messageContainer"></div>
+<!-- Final Message -->
+<div class="screen" id="screen6" style="align-items:flex-start;">
+  <h1 class="fancy" style="padding:15px 10px; width:100%; text-align:center;">A Special Message For You 💖</h1>
+  <div style="width:100%; display:flex; justify-content:center;">
+    <div id="messageContainer" style="
+  width: 100%;
+  max-width: 700px;
+  text-align: left;
+  line-height: 1.7;
+  padding: 10px;
+  margin: 0 auto;
+">
+  </div>
+</div>
 </div>
 
 <script>
 let current = 1;
 
 function nextScreen(num) {
-  document.getElementById("screen" + current).classList.remove("active");
-  document.getElementById("screen" + num).classList.add("active");
+  document.getElementById('screen' + current).classList.remove('active');
+  document.getElementById('screen' + num).classList.add('active');
   current = num;
 
   if (num === 6) showMessage();
 }
 
-/* ✅ FIXED COUNTDOWN */
-let count = 3;
-const el = document.getElementById("countdown");
+// Stable countdown (fixes stuck issue)
+document.addEventListener("DOMContentLoaded", () => {
+  let count = 3;
+  const countdownEl = document.getElementById('countdown');
 
-function runCountdown() {
-  el.innerText = count;
+  function runCountdown() {
+    if (!countdownEl) return;
 
-  if (count > 0) {
+    countdownEl.innerText = count;
     count--;
-    setTimeout(runCountdown, 1000);
-  } else {
-    setTimeout(() => {
+
+    if (count >= 0) {
+      setTimeout(runCountdown, 1000);
+    } else {
       nextScreen(2);
       setTimeout(() => nextScreen(3), 2000);
-    }, 800);
+    }
   }
-}
 
-setTimeout(runCountdown, 300);
+  runCountdown();
+});
 
-/* Tap */
-window.addEventListener("click", () => {
+// Tap
+window.addEventListener('click', () => {
   if (current === 3) nextScreen(4);
 });
 
-/* Message */
+// Paragraphs (smooth fade-in)
 const paragraphs = [
 "Meri pyaari si Bhaluu,",
-"Sach bolu toh na aap ekdum God gifted ho ✨ Itni kind, itni genuine… aaj kal aise log milte hi kahan hai yaarr 🥺",
-"Aap hamesha mere saath rehti ho, chahe situation kaisi bhi ho… Mujhe kabhi akela feel nahi hone deti 🤍 Aur honestly, aap mujhe dukhi hone hi nahi deti… always cheer me up 💫",
-"Aur aapke voice notes… uff 😭💖 Itne pyaare gaane bhejti ho aap… literally unhe sunkar dil khush ho jata hai pura 🎶 Woh baat alag hai kai bar dhamkiyan bhi mil jati hai par thikh hai 😅 Woh alag baat hai aap 'hatt' aur 'haww' bahut bolti ho 😂 Par jab aap bolti ho na… pata nahi kyun, accha hi lagta hai ❤️",
-"Aap sirf achi nahi ho… aap bohot pyaari ho yaar 💎 Aur mujhe genuinely bohot khushi hoti hai ki aap meri life ka part ho",
-"Aur ek baat toh hamesha sach rahegi 😏 Age mein chahe aap kitni bhi badi ho jao… mere se chhoti hi rahogi 😂 Thodi si bauni si, butki si.. Meri Laadli ho aap 🤏😆",
-"Aur ab… NEET ke liye 💪 Mujhe pata hai aap bohot mehnat kar rahi ho, aur aap definitely apna goal achieve kar loge 🔥 Bas aise hi focused rehna… I’m always rooting for you ❤️ All the very best future doctor 👩‍⚕️✨",
-"Aur ab toh sidha 1 mahine baad hi baat karo paoge mere sath.. Yaad rakhunga woh sari baate jo humne ki, And.. Now at last",
+"Sach bolu toh aap ekdum God gifted ho ✨ Itni kind, itni genuine… aaj kal aise log milte hi kahan hai 🥺",
+"Aap hamesha mere saath rehti ho, chahe situation kuch bhi ho… Mujhe kabhi akela feel nahi hone deti 🤍 Aur honestly, aap mujhe dukhi hone hi nahi deti… always cheering me up 💫",
+"Aur aapke voice notes… uff 😭💖 Itne pyaare gaane bhejti ho aap… literally mere din ka best part ban jaate hain 🎶 Woh baat alag hai kai bar dhamkiyan bhi mil jati hai par thikh hai 😅 Woh alag baat hai aap 'hatt' aur 'haww' bahut bolti ho 😂 Par jab aap bolti ho na… pata nahi kyun, accha hi lagta hai ❤️",
+"Aap sirf achi nahi ho… aap bohot special ho 💎 Aur mujhe genuinely bohot khushi hoti hai ki aap meri life ka part ho",
+"Aur ek baat toh hamesha sach rahegi 😏 Age mein chahe aap kitni bhi badi ho jao… mere se chhoti hi rahogi 😂 Thodi si bauni si, butkii si ho aap 🤏😆",
+"Aur ab… NEET ke liye 💪 Mujhe pata hai aap bohot mehnat kar rahi ho, aur aap definitely apna goal achieve karogi 🔥 Bas aise hi focused rehna… I’m always rooting for you ❤️ All the very best future doctor 👩‍⚕️✨",
 "Happy Birthday meri pyaari si Kaynat ❤️ Hamesha sukhi raho zindagi bhar 💖"
 ];
 
@@ -176,15 +171,21 @@ function showMessage() {
   paragraphs.forEach((text, index) => {
     const p = document.createElement("p");
     p.innerText = text;
+    p.style.opacity = 0;
+    p.style.transform = "translateY(20px)";
+    p.style.transition = "all 0.6s ease";
 
     container.appendChild(p);
 
     setTimeout(() => {
-      p.classList.add("show");
-    }, index * 600);
+      p.style.opacity = 1;
+      p.style.transform = "translateY(0)";
+    }, index * 700);
   });
 }
+
 </script>
 
 </body>
 </html>
+
